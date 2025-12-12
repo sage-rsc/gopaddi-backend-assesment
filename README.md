@@ -164,7 +164,7 @@ token: VG@123
 
 ### Wallet Management APIs
 
-#### 1. Create Wallet (Async)
+#### 1. Create Wallet
 - **Endpoint**: `POST /api/wallets`
 - **Headers**: `token: VG@123`
 - **Body**:
@@ -173,18 +173,19 @@ token: VG@123
     "user_id": 1
   }
   ```
-- **Response**: 202 Accepted (Async Processing)
+- **Response**: 201 Created
   ```json
   {
     "success": true,
-    "message": "Wallet creation initiated. It will be processed in the background.",
+    "message": "Wallet created successfully",
     "data": {
+      "wallet_id": 1,
       "user_id": 1,
-      "status": "queued"
+      "balance": 0.00,
+      "created_at": "2025-12-12T10:00:00.000000Z"
     }
   }
   ```
-- **Note**: Wallet creation is processed asynchronously via queue. The wallet will be created in the background, allowing for instant API response. Check logs or query the database to verify wallet creation.
 
 #### 2. View Wallet Balance
 - **Endpoint**: `GET /api/wallets/{id}`

@@ -18,14 +18,16 @@ class WalletController extends BaseController
     public function create(CreateWalletRequest $request): JsonResponse
     {
         try {
-            $this->walletService->createWalletAsync($request->user_id);
+            $wallet = $this->walletService->createWallet($request->user_id);
 
             return $this->successResponse([
-                'user_id' => $request->user_id,
-                'status' => 'queued',
-            ], 'Wallet creation initiated. It will be processed in the background.', 202);
+                'wallet_id' => $wallet->id,
+                'user_id' => $wallet->user_id,
+                'balance' => (float) $wallet->balance,
+                'created_at' => $wallet->created_at,
+            ], 'Wallet created successfully', 201);
         } catch (\Exception $e) {
-            return $this->handleException($e, 'Failed to initiate wallet creation');
+            return $this->handleException($e, 'Failed to create wallet');
         }
     }
 

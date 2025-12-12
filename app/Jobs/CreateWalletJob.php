@@ -28,47 +28,20 @@ class CreateWalletJob implements ShouldQueue
      */
     public $backoff = 60;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(
         public int $userId
     ) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(CreateWalletAction $action): void
     {
-        try {
-            Log::info("Processing wallet creation job", [
-                'user_id' => $this->userId,
-                'job_id' => $this->job->getJobId(),
-            ]);
-
-            $wallet = $action->handle($this->userId);
-
-            Log::info("Wallet creation job completed successfully", [
-                'user_id' => $this->userId,
-                'wallet_id' => $wallet->id,
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Wallet creation job failed", [
-                'user_id' => $this->userId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            throw $e;
-        }
+        // TODO: Implement virtual account creation with payment provider
+        // This job is reserved for future implementation where wallet creation
+        // will trigger virtual account creation with external payment providers
     }
 
-    /**
-     * Handle a job failure.
-     */
     public function failed(\Throwable $exception): void
     {
-        Log::error("Wallet creation job permanently failed", [
+        Log::error("Virtual account creation job failed", [
             'user_id' => $this->userId,
             'error' => $exception->getMessage(),
         ]);
