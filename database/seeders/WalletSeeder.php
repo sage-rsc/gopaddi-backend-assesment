@@ -14,7 +14,13 @@ class WalletSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create 3 test users using bulk insert
+        // Create user_id 1 without wallet (for testing wallet creation)
+        User::firstOrCreate(
+            ['id' => 1],
+            User::factory()->make(['id' => 1])->toArray()
+        );
+        
+        // Create 3 test users with wallets (will be user_id 2, 3, 4 if user 1 exists)
         $users = User::factory(3)->create();
         $userIds = $users->pluck('id')->toArray();
 
