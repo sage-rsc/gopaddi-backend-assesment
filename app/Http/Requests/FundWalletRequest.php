@@ -22,7 +22,7 @@ class FundWalletRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => 'required|numeric|min:0.01|max:999999999999.99|regex:/^\d+(\.\d{1,2})?$/',
+            'amount' => 'required|numeric|min:1|max:999999999999.99|regex:/^\d+(\.\d{1,2})?$/',
             'description' => 'nullable|string|max:500',
         ];
     }

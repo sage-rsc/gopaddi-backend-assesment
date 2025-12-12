@@ -46,7 +46,7 @@ class WithdrawWalletAction extends Action
                 throw WalletException::walletNotFound($walletId);
             }
 
-            if ($amount <= 0) {
+            if ($amount < 1) {
                 throw WalletException::invalidAmount();
             }
 

@@ -71,7 +71,7 @@ class InitiateTransferAction extends Action
                 throw TransferException::sameWallet();
             }
 
-            if ($amount <= 0) {
+            if ($amount < 1) {
                 throw TransferException::invalidAmount();
             }
 
