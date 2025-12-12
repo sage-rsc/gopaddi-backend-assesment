@@ -5,6 +5,26 @@
 		"description": "API collection for Wallet Management and Payment/Transfer operations",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "token",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{api_token}}",
+				"type": "string"
+			},
+			{
+				"key": "in",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
 	"item": [
 		{
 			"name": "Wallet Management",
@@ -14,11 +34,6 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json",
@@ -40,13 +55,7 @@
 					"name": "View Wallet Balance",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/wallets/1",
 							"host": ["{{base_url}}"],
@@ -59,11 +68,6 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json",
@@ -87,11 +91,6 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							},
-							{
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
@@ -112,13 +111,7 @@
 					"name": "Delete Wallet",
 					"request": {
 						"method": "DELETE",
-						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/wallets/1",
 							"host": ["{{base_url}}"],
@@ -136,11 +129,6 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json",
@@ -162,13 +150,7 @@
 					"name": "View Transfer Details",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/transfers/1",
 							"host": ["{{base_url}}"],
@@ -180,17 +162,52 @@
 					"name": "View All Transfers for Wallet",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "token",
-								"value": "VG@123",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/wallets/1/transfers",
 							"host": ["{{base_url}}"],
 							"path": ["api", "wallets", "1", "transfers"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Ledger & Audit",
+			"item": [
+				{
+					"name": "Verify Wallet Integrity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ledger/wallets/1/verify",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ledger", "wallets", "1", "verify"]
+						}
+					}
+				},
+				{
+					"name": "Verify Transfer Integrity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ledger/transfers/1/verify",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ledger", "transfers", "1", "verify"]
+						}
+					}
+				},
+				{
+					"name": "Get Ledger Audit Trail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ledger/wallets/1/audit-trail",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ledger", "wallets", "1", "audit-trail"]
 						}
 					}
 				}
@@ -202,7 +219,11 @@
 			"key": "base_url",
 			"value": "http://localhost:8000",
 			"type": "string"
+		},
+		{
+			"key": "api_token",
+			"value": "VG@123",
+			"type": "string"
 		}
 	]
 }
-
