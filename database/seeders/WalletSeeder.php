@@ -33,18 +33,16 @@ class WalletSeeder extends Seeder
         $wallets = [];
         $now = now();
 
-        $balance2 = fake()->randomFloat(2, 100, 5000);
         $wallets[] = [
             'user_id' => 2,
-            'balance' => $balance2,
+            'balance' => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ];
 
-        $balance3 = fake()->randomFloat(2, 100, 5000);
         $wallets[] = [
             'user_id' => 3,
-            'balance' => $balance3,
+            'balance' => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ];
@@ -60,10 +58,18 @@ class WalletSeeder extends Seeder
 
         foreach ($createdWallets as $wallet) {
             $transactionCount = fake()->numberBetween(3, 8);
+            $creditTotal = 0;
+            $debitTotal = 0;
             
             for ($i = 0; $i < $transactionCount; $i++) {
                 $type = fake()->randomElement(['credit', 'debit']);
-                $amount = fake()->randomFloat(2, 10, 500);
+                $amount = round(fake()->randomFloat(2, 10, 500), 2);
+                
+                if ($type === 'credit') {
+                    $creditTotal += $amount;
+                } else {
+                    $debitTotal += $amount;
+                }
                 
                 $transactions[] = [
                     'wallet_id' => $wallet->id,
@@ -76,6 +82,27 @@ class WalletSeeder extends Seeder
                     'updated_at' => $now,
                 ];
             }
+            
+            $calculatedBalance = round($creditTotal - $debitTotal, 2);
+            
+            if ($calculatedBalance < 0) {
+                $additionalCredit = round(abs($calculatedBalance) + fake()->randomFloat(2, 100, 500), 2);
+                $creditTotal += $additionalCredit;
+                $calculatedBalance = round($creditTotal - $debitTotal, 2);
+                
+                $transactions[] = [
+                    'wallet_id' => $wallet->id,
+                    'type' => 'credit',
+                    'amount' => $additionalCredit,
+                    'reference' => (string) \Illuminate\Support\Str::uuid(),
+                    'description' => fake()->sentence(),
+                    'status' => 'completed',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            
+            $wallet->update(['balance' => $calculatedBalance]);
         }
 
         if (!empty($transactions)) {
