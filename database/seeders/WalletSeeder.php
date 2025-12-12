@@ -20,28 +20,41 @@ class WalletSeeder extends Seeder
             User::factory()->make(['id' => 1])->toArray()
         );
         
-        // Create 3 test users with wallets (will be user_id 2, 3, 4 if user 1 exists)
-        $users = User::factory(3)->create();
-        $userIds = $users->pluck('id')->toArray();
+        // Create user_id 2 and 3 with wallets
+        $user2 = User::firstOrCreate(
+            ['id' => 2],
+            User::factory()->make(['id' => 2])->toArray()
+        );
+        
+        $user3 = User::firstOrCreate(
+            ['id' => 3],
+            User::factory()->make(['id' => 3])->toArray()
+        );
 
-        // Bulk create wallets using relationships
+        // Create wallets for user 2 and 3 only
         $wallets = [];
         $now = now();
 
-        foreach ($users as $user) {
-            $balance = fake()->randomFloat(2, 100, 5000);
-            $wallets[] = [
-                'user_id' => $user->id,
-                'balance' => $balance,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
+        $balance2 = fake()->randomFloat(2, 100, 5000);
+        $wallets[] = [
+            'user_id' => 2,
+            'balance' => $balance2,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        $balance3 = fake()->randomFloat(2, 100, 5000);
+        $wallets[] = [
+            'user_id' => 3,
+            'balance' => $balance3,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
 
         Wallet::insert($wallets);
 
         // Fetch created wallets with relationships
-        $createdWallets = Wallet::whereIn('user_id', $userIds)
+        $createdWallets = Wallet::whereIn('user_id', [2, 3])
             ->with('user')
             ->get();
 
