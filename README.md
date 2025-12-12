@@ -44,7 +44,7 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/yourusername/gopaddi-backend-assesment.git
    cd gopaddi-backend-assesment
    ```
 
@@ -67,14 +67,19 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
    DB_HOST=127.0.0.1
    DB_PORT=3306
    DB_DATABASE=wallet_db
-   DB_USERNAME=your_username
-   DB_PASSWORD=your_password
+   DB_USERNAME=root
+   DB_PASSWORD=
    ```
 
    For SQLite (development):
    ```env
    DB_CONNECTION=sqlite
-   DB_DATABASE=/absolute/path/to/database.sqlite
+   DB_DATABASE=database/database.sqlite
+   ```
+   
+   Note: Create the SQLite database file if it doesn't exist:
+   ```bash
+   touch database/database.sqlite
    ```
 
 5. **Run migrations**
@@ -123,7 +128,7 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
    ```ini
    [program:laravel-worker]
    process_name=%(program_name)s_%(process_num)02d
-   command=php /path/to/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+   command=php /var/www/gopaddi-backend-assesment/artisan queue:work --sleep=3 --tries=3 --max-time=3600
    autostart=true
    autorestart=true
    stopasgroup=true
@@ -131,9 +136,11 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
    user=www-data
    numprocs=2
    redirect_stderr=true
-   stdout_logfile=/path/to/worker.log
+   stdout_logfile=/var/www/gopaddi-backend-assesment/storage/logs/worker.log
    stopwaitsecs=3600
    ```
+   
+   Note: Update the paths to match your actual deployment directory.
 
 9. **Start the development server**
    ```bash
@@ -373,9 +380,32 @@ token: VG@123
         "user_id": 1,
         "balance": 1500.00
       },
-      "transactions": [...],
-      "transfers": [...],
-      "integrity_check": {...}
+      "transactions": [
+        {
+          "id": 1,
+          "type": "credit",
+          "amount": 500.00,
+          "reference": "uuid-here",
+          "status": "completed",
+          "created_at": "2025-12-12T10:00:00.000000Z"
+        }
+      ],
+      "transfers": [
+        {
+          "id": 1,
+          "reference": "uuid-here",
+          "amount": 200.00,
+          "direction": "outgoing",
+          "status": "completed",
+          "created_at": "2025-12-12T10:00:00.000000Z"
+        }
+      ],
+      "integrity_check": {
+        "valid": true,
+        "wallet_id": 1,
+        "actual_balance": 1500.00,
+        "calculated_balance": 1500.00
+      }
     }
   }
   ```
@@ -536,14 +566,16 @@ If any step fails, the entire transaction is rolled back, ensuring data consiste
 ## Testing with Postman
 
 1. Import the `postman_collection.json` file into Postman
-2. Set the `base_url` variable to your API URL (default: `http://localhost:8000`)
-3. All requests include the required `token` header
+2. The collection is pre-configured with the base URL `http://localhost:8000`
+3. All requests include the required `token: VG@123` header
 4. Test the endpoints in the following order:
-   - Create wallets for users
-   - Fund wallets
-   - Initiate transfers
-   - View wallet balances and transaction summaries
-   - View transfer details
+   - Create wallets for users (POST /api/wallets)
+   - Fund wallets (POST /api/wallets/{id}/fund)
+   - Initiate transfers (POST /api/transfers)
+   - View wallet balances and transaction summaries (GET /api/wallets/{id})
+   - View transfer details (GET /api/transfers/{id})
+   - View wallet transfers (GET /api/wallets/{walletId}/transfers)
+   - Verify ledger integrity (GET /api/ledger/wallets/{walletId}/verify)
 
 ## Error Handling
 
@@ -566,10 +598,11 @@ Common HTTP status codes:
 
 ## Validation Rules
 
-- **Amount**: Required, numeric, minimum 1, decimal format (max 2 decimal places)
+- **Amount**: Required, numeric, minimum 0.01, maximum 999999999999.99, decimal format (max 2 decimal places)
 - **User ID**: Required, must exist in users table, unique (one wallet per user)
 - **Wallet ID**: Required, must exist in wallets table
 - **Transfer**: Sender and receiver wallets must be different
+- **Description**: Optional, string, maximum 500 characters
 
 ## Development
 
@@ -736,5 +769,7 @@ All exceptions are logged with full context for debugging.
 This project is part of a backend developer assessment.
 
 ## Author
+
+James Favour
 
 Developed as part of the GoPaddi Backend Developer Assessment.
