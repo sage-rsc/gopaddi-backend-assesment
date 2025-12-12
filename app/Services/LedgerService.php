@@ -46,9 +46,9 @@ class LedgerService
         $result = [
             'valid' => $balanceMatch,
             'wallet_id' => $walletId,
-            'actual_balance' => (float) $wallet->balance,
-            'calculated_balance' => $expectedBalance,
-            'difference' => abs($wallet->balance - $expectedBalance),
+            'actual_balance' => round((float) $wallet->balance, 2),
+            'calculated_balance' => round($expectedBalance, 2),
+            'difference' => round(abs($wallet->balance - $expectedBalance), 2),
             'credit_total' => $summary['credit_total'],
             'debit_total' => $summary['debit_total'],
         ];
@@ -136,15 +136,15 @@ class LedgerService
             'valid' => $valid,
             'transfer_id' => $transferId,
             'transfer_reference' => $transfer->reference,
-            'transfer_amount' => (float) $transfer->amount,
+            'transfer_amount' => round((float) $transfer->amount, 2),
             'debit_transaction' => $debitTransaction ? [
                 'id' => $debitTransaction->id,
-                'amount' => (float) $debitTransaction->amount,
+                'amount' => round((float) $debitTransaction->amount, 2),
                 'reference' => $debitTransaction->reference,
             ] : null,
             'credit_transaction' => $creditTransaction ? [
                 'id' => $creditTransaction->id,
-                'amount' => (float) $creditTransaction->amount,
+                'amount' => round((float) $creditTransaction->amount, 2),
                 'reference' => $creditTransaction->reference,
             ] : null,
             'errors' => $errors,
