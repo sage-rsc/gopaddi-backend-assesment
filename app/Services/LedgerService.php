@@ -191,13 +191,13 @@ class LedgerService
             'wallet' => [
                 'id' => $wallet->id,
                 'user_id' => $wallet->user_id,
-                'balance' => (float) $wallet->balance,
+                'balance' => round((float) $wallet->balance, 2),
             ],
             'transactions' => $transactions->map(function ($transaction) {
                 return [
                     'id' => $transaction->id,
                     'type' => $transaction->type,
-                    'amount' => (float) $transaction->amount,
+                    'amount' => round((float) $transaction->amount, 2),
                     'reference' => $transaction->reference,
                     'status' => $transaction->status,
                     'created_at' => $transaction->created_at,
@@ -207,7 +207,7 @@ class LedgerService
                 return [
                     'id' => $transfer->id,
                     'reference' => $transfer->reference,
-                    'amount' => (float) $transfer->amount,
+                    'amount' => round((float) $transfer->amount, 2),
                     'direction' => $transfer->sender_wallet_id === $walletId ? 'outgoing' : 'incoming',
                     'status' => $transfer->status,
                     'created_at' => $transfer->created_at,
