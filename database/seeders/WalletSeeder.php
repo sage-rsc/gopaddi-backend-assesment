@@ -35,6 +35,7 @@ class WalletSeeder extends Seeder
 
         $balance2 = fake()->randomFloat(2, 100, 5000);
         $wallets[] = [
+            'id' => 2,
             'user_id' => 2,
             'balance' => $balance2,
             'created_at' => $now,
@@ -43,6 +44,7 @@ class WalletSeeder extends Seeder
 
         $balance3 = fake()->randomFloat(2, 100, 5000);
         $wallets[] = [
+            'id' => 3,
             'user_id' => 3,
             'balance' => $balance3,
             'created_at' => $now,
