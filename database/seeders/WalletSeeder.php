@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class WalletSeeder extends Seeder
 {
@@ -16,17 +17,17 @@ class WalletSeeder extends Seeder
     {
         User::firstOrCreate(
             ['id' => 1],
-            User::factory()->make(['id' => 1])->toArray()
+            array_merge(User::factory()->definition(), ['id' => 1, 'password' => Hash::make('password')])
         );
         
-        $user2 = User::firstOrCreate(
+        User::firstOrCreate(
             ['id' => 2],
-            User::factory()->make(['id' => 2])->toArray()
+            array_merge(User::factory()->definition(), ['id' => 2, 'password' => Hash::make('password')])
         );
         
-        $user3 = User::firstOrCreate(
+        User::firstOrCreate(
             ['id' => 3],
-            User::factory()->make(['id' => 3])->toArray()
+            array_merge(User::factory()->definition(), ['id' => 3, 'password' => Hash::make('password')])
         );
 
         $wallets = [];
