@@ -29,10 +29,8 @@ class WalletRepository
 
     public function updateBalance(Wallet $wallet, float $amount): bool
     {
-        // Ensure amount is properly rounded to 2 decimal places
         $amount = round($amount, 2);
         
-        // Validate amount is within valid range
         if ($amount < 0 || $amount > 999999999999.99) {
             throw new \InvalidArgumentException("Balance must be between 0 and 999999999999.99");
         }

@@ -45,14 +45,12 @@ class InitiateTransferAction extends Action
         $description = $arguments[3] ?? null;
         
         return DB::transaction(function () use ($senderWalletId, $receiverWalletId, $amount, $description) {
-            // Lock wallets in consistent order (lower ID first) to prevent deadlocks
             $walletIds = [$senderWalletId, $receiverWalletId];
             sort($walletIds);
             
             $firstWallet = $this->walletRepository->findByIdWithLock($walletIds[0]);
             $secondWallet = $this->walletRepository->findByIdWithLock($walletIds[1]);
             
-            // Assign to sender/receiver based on original order
             if ($walletIds[0] === $senderWalletId) {
                 $senderWallet = $firstWallet;
                 $receiverWallet = $secondWallet;
@@ -77,22 +75,17 @@ class InitiateTransferAction extends Action
                 throw TransferException::invalidAmount();
             }
 
-            // Validate maximum amount to prevent overflow (999,999,999,999.99)
             $maxAmount = 999999999999.99;
             if ($amount > $maxAmount) {
                 throw TransferException::amountExceedsMaximum($maxAmount);
             }
 
-            // Round amount to 2 decimal places for precision
             $amount = round($amount, 2);
-
-            // Use proper decimal comparison - check if balance is less than amount
             $senderBalance = (float) $senderWallet->balance;
             if ($senderBalance < $amount) {
                 throw TransferException::insufficientBalance($senderBalance, $amount);
             }
 
-            // Create transfer record
             $transfer = $this->transferRepository->create([
                 'sender_wallet_id' => $senderWalletId,
                 'receiver_wallet_id' => $receiverWalletId,
@@ -102,31 +95,23 @@ class InitiateTransferAction extends Action
             ]);
 
             try {
-                // Calculate new balances with proper rounding to prevent precision issues
                 $senderNewBalance = round((float) $senderWallet->balance - $amount, 2);
                 $receiverNewBalance = round((float) $receiverWallet->balance + $amount, 2);
 
-                // Validate balance won't go negative (defensive check)
                 if ($senderNewBalance < 0) {
                     throw TransferException::insufficientBalance($senderWallet->balance, $amount);
                 }
 
-                // Validate receiver balance won't exceed maximum (999,999,999,999.99)
                 $maxBalance = 999999999999.99;
                 if ($receiverNewBalance > $maxBalance) {
                     throw TransferException::receiverBalanceExceedsMaximum($maxBalance);
                 }
 
-                // Use repository method for consistency and ensure atomic update
                 $this->walletRepository->updateBalance($senderWallet, $senderNewBalance);
                 $this->walletRepository->updateBalance($receiverWallet, $receiverNewBalance);
                 
-                // Refresh wallet models to ensure we have latest data
                 $senderWallet->refresh();
                 $receiverWallet->refresh();
-
-                // Bulk create transactions (optimized)
-                // Each transaction needs its own unique reference
                 $transactions = [
                     [
                         'wallet_id' => $senderWalletId,
@@ -150,10 +135,8 @@ class InitiateTransferAction extends Action
 
                 $this->transactionRepository->bulkCreate($transactions);
 
-                // Update transfer status to completed
                 $transfer->update(['status' => 'completed']);
 
-                // Audit log for transfer
                 $this->audit()->log(
                     'transfer',
                     'transfer_completed',
@@ -190,7 +173,6 @@ class InitiateTransferAction extends Action
             } catch (\Exception $e) {
                 $transfer->update(['status' => 'failed']);
 
-                // Audit log for failed transfer
                 $this->audit()->log(
                     'transfer',
                     'transfer_failed',

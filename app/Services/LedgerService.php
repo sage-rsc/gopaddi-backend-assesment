@@ -37,12 +37,9 @@ class LedgerService
             ];
         }
 
-        // Calculate expected balance from transactions
         $summary = $this->transactionRepository->getWalletTransactionSummary($walletId);
         $expectedBalance = $summary['credit_total'] - $summary['debit_total'];
 
-        // Compare with actual balance using proper decimal comparison
-        // Allow for minimal rounding differences (0.01) due to decimal precision
         $difference = abs((float) $wallet->balance - $expectedBalance);
         $balanceMatch = $difference < 0.01;
 
@@ -93,7 +90,6 @@ class LedgerService
             ];
         }
 
-        // Get related transactions
         $transactions = Transaction::where('transfer_id', $transferId)
             ->where('status', 'completed')
             ->get();
@@ -104,7 +100,6 @@ class LedgerService
         $valid = true;
         $errors = [];
 
-        // Check both transactions exist
         if (!$debitTransaction) {
             $valid = false;
             $errors[] = 'Debit transaction missing';
@@ -115,13 +110,11 @@ class LedgerService
             $errors[] = 'Credit transaction missing';
         }
 
-        // Check amounts match using proper decimal comparison
         if ($debitTransaction && $creditTransaction) {
             $debitAmount = (float) $debitTransaction->amount;
             $creditAmount = (float) $creditTransaction->amount;
             $transferAmount = (float) $transfer->amount;
 
-            // Compare with tolerance for decimal precision
             if (abs($debitAmount - $creditAmount) >= 0.01) {
                 $valid = false;
                 $errors[] = 'Transaction amounts do not match';
@@ -132,7 +125,6 @@ class LedgerService
                 $errors[] = 'Transfer amount does not match transaction amounts';
             }
 
-            // Verify both transactions are linked to the same transfer
             if ($debitTransaction->transfer_id !== $creditTransaction->transfer_id || 
                 $debitTransaction->transfer_id !== $transferId) {
                 $valid = false;

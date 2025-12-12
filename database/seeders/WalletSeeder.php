@@ -14,13 +14,11 @@ class WalletSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create user_id 1 without wallet (for testing wallet creation)
         User::firstOrCreate(
             ['id' => 1],
             User::factory()->make(['id' => 1])->toArray()
         );
         
-        // Create user_id 2 and 3 with wallets
         $user2 = User::firstOrCreate(
             ['id' => 2],
             User::factory()->make(['id' => 2])->toArray()
@@ -31,7 +29,6 @@ class WalletSeeder extends Seeder
             User::factory()->make(['id' => 3])->toArray()
         );
 
-        // Create wallets for user 2 and 3 only
         $wallets = [];
         $now = now();
 
@@ -53,12 +50,10 @@ class WalletSeeder extends Seeder
 
         Wallet::insert($wallets);
 
-        // Fetch created wallets with relationships
         $createdWallets = Wallet::whereIn('user_id', [2, 3])
             ->with('user')
             ->get();
 
-        // Bulk create transactions (optimized - no loops)
         $transactions = [];
         $now = now();
 
@@ -82,7 +77,6 @@ class WalletSeeder extends Seeder
             }
         }
 
-        // Bulk insert all transactions at once
         if (!empty($transactions)) {
             Transaction::insert($transactions);
         }

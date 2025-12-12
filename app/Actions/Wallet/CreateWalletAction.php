@@ -32,14 +32,12 @@ class CreateWalletAction extends Action
         $userId = (int) $arguments[0];
         
         return DB::transaction(function () use ($userId) {
-            // Check if user already has a wallet (with lock to prevent race condition)
             $existingWallet = Wallet::where('user_id', $userId)->lockForUpdate()->first();
 
             if ($existingWallet) {
                 throw WalletException::userAlreadyHasWallet($userId);
             }
 
-            // Validate user exists
             if (!\App\Models\User::find($userId)) {
                 throw WalletException::userNotFound($userId);
             }

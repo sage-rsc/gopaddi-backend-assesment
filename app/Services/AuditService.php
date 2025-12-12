@@ -59,24 +59,16 @@ class AuditService
                 'error_message' => $data['error_message'] ?? null,
             ]);
         } catch (\Exception $e) {
-            // Log to Laravel log if audit logging fails
             Log::error('Audit logging failed', [
                 'error' => $e->getMessage(),
                 'event_type' => $eventType,
                 'action' => $action,
             ]);
 
-            // Still return a model instance to prevent breaking the flow
             return new AuditLog();
         }
     }
 
-    /**
-     * Bulk log audit events.
-     *
-     * @param array $events
-     * @return int Number of logs created
-     */
     public function bulkLog(array $events): int
     {
         try {
@@ -115,12 +107,6 @@ class AuditService
         }
     }
 
-    /**
-     * Sanitize headers to remove sensitive information.
-     *
-     * @param array $headers
-     * @return array
-     */
     private function sanitizeHeaders(array $headers): array
     {
         $sensitive = ['authorization', 'cookie', 'x-api-key', 'token'];

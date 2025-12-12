@@ -63,7 +63,6 @@ abstract class BaseController extends Controller
         $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
         $message = $e->getMessage() ?: $defaultMessage;
 
-        // Log the exception for debugging
         Log::error('Controller exception', [
             'message' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
@@ -71,7 +70,6 @@ abstract class BaseController extends Controller
             'line' => $e->getLine(),
         ]);
 
-        // Don't expose internal errors in production
         if (config('app.debug')) {
             return $this->errorResponse($message, $statusCode);
         }

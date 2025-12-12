@@ -36,7 +36,6 @@ class DeleteWalletAction extends Action
                 throw WalletException::walletNotFound($walletId);
             }
 
-            // Check balance with proper decimal comparison (allow for minimal rounding differences)
             $balance = (float) $wallet->balance;
             if ($balance > 0.01) {
                 throw WalletException::cannotDeleteNonZeroBalance($balance);

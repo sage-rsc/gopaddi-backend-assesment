@@ -21,15 +21,12 @@ class RateLimitMiddleware
     {
         $key = $this->resolveRequestSignature($request);
 
-        // Use atomic increment to prevent race conditions
         $attempts = Cache::increment($key);
         
-        // If key didn't exist, increment returns false, so initialize it
         if ($attempts === false) {
             Cache::put($key, 1, now()->addMinutes($decayMinutes));
             $attempts = 1;
         } elseif ($attempts === 1) {
-            // First request after initialization - ensure expiration is set
             Cache::put($key, 1, now()->addMinutes($decayMinutes));
         }
 
@@ -53,7 +50,6 @@ class RateLimitMiddleware
 
         $response = $next($request);
 
-        // Add rate limit headers
         $remaining = max(0, $maxAttempts - $attempts);
         $response->headers->set('X-RateLimit-Limit', $maxAttempts);
         $response->headers->set('X-RateLimit-Remaining', $remaining);
@@ -70,7 +66,6 @@ class RateLimitMiddleware
      */
     protected function resolveRequestSignature(Request $request): string
     {
-        // Use IP address and endpoint as key
         return 'rate_limit:' . $request->ip() . ':' . $request->path();
     }
 }

@@ -50,19 +50,16 @@ class FundWalletAction extends Action
                 throw WalletException::invalidAmount();
             }
 
-            // Validate maximum amount to prevent overflow
             $maxAmount = 999999999999.99;
             if ($amount > $maxAmount) {
                 throw WalletException::amountExceedsMaximum($maxAmount);
             }
 
-            // Round amount to 2 decimal places for precision
             $amount = round($amount, 2);
 
             $oldBalance = (float) $wallet->balance;
             $newBalance = round($oldBalance + $amount, 2);
 
-            // Validate balance won't exceed maximum (999,999,999,999.99)
             if ($newBalance > $maxAmount) {
                 throw WalletException::balanceExceedsMaximum($maxAmount);
             }
@@ -77,7 +74,6 @@ class FundWalletAction extends Action
                 'status' => 'completed',
             ]);
 
-            // Audit log
             $this->audit()->log(
                 'transaction',
                 'wallet_funded',

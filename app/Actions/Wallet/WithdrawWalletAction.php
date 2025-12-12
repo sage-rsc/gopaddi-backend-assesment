@@ -50,16 +50,13 @@ class WithdrawWalletAction extends Action
                 throw WalletException::invalidAmount();
             }
 
-            // Validate maximum amount to prevent overflow
             $maxAmount = 999999999999.99;
             if ($amount > $maxAmount) {
                 throw WalletException::amountExceedsMaximum($maxAmount);
             }
 
-            // Round amount to 2 decimal places for precision
             $amount = round($amount, 2);
 
-            // Use proper decimal comparison - check if balance is less than amount
             $walletBalance = (float) $wallet->balance;
             if ($walletBalance < $amount) {
                 throw WalletException::insufficientBalance($walletBalance, $amount);
@@ -68,7 +65,6 @@ class WithdrawWalletAction extends Action
             $oldBalance = (float) $wallet->balance;
             $newBalance = round($oldBalance - $amount, 2);
 
-            // Defensive check: ensure balance won't go negative
             if ($newBalance < 0) {
                 throw WalletException::insufficientBalance($wallet->balance, $amount);
             }
@@ -83,7 +79,6 @@ class WithdrawWalletAction extends Action
                 'status' => 'completed',
             ]);
 
-            // Audit log
             $this->audit()->log(
                 'transaction',
                 'wallet_withdrawn',

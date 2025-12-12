@@ -13,12 +13,6 @@ class TransactionRepository
         return Transaction::create($data);
     }
 
-    /**
-     * Bulk create transactions (optimized for multiple inserts).
-     *
-     * @param array $transactions
-     * @return bool
-     */
     public function bulkCreate(array $transactions): bool
     {
         if (empty($transactions)) {
@@ -36,37 +30,31 @@ class TransactionRepository
                 }
             }
 
-            // Validate and sanitize amount
             $amount = $transaction['amount'];
             if (!is_numeric($amount) || $amount < 0 || $amount > 999999999999.99) {
                 throw new \InvalidArgumentException("Invalid amount in transaction at index {$index}");
             }
             $transaction['amount'] = round((float) $amount, 2);
 
-            // Validate wallet_id is integer
             if (!is_int($transaction['wallet_id']) && !is_numeric($transaction['wallet_id'])) {
                 throw new \InvalidArgumentException("Invalid wallet_id in transaction at index {$index}");
             }
             $transaction['wallet_id'] = (int) $transaction['wallet_id'];
 
-            // Validate type is in allowed enum values
             $allowedTypes = ['credit', 'debit', 'transfer_in', 'transfer_out'];
             if (!in_array($transaction['type'], $allowedTypes, true)) {
                 throw new \InvalidArgumentException("Invalid transaction type '{$transaction['type']}' at index {$index}");
             }
 
-            // Validate status is in allowed enum values
             $allowedStatuses = ['pending', 'completed', 'failed'];
             if (!in_array($transaction['status'], $allowedStatuses, true)) {
                 throw new \InvalidArgumentException("Invalid transaction status '{$transaction['status']}' at index {$index}");
             }
 
-            // Validate reference is UUID format
             if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $transaction['reference'])) {
                 throw new \InvalidArgumentException("Invalid reference format in transaction at index {$index}");
             }
 
-            // Validate transfer_id if provided (must be integer)
             if (isset($transaction['transfer_id']) && $transaction['transfer_id'] !== null) {
                 if (!is_int($transaction['transfer_id']) && !is_numeric($transaction['transfer_id'])) {
                     throw new \InvalidArgumentException("Invalid transfer_id in transaction at index {$index}");
@@ -76,7 +64,6 @@ class TransactionRepository
                 $transaction['transfer_id'] = null;
             }
 
-            // Sanitize description if provided (prevent XSS, limit length)
             if (isset($transaction['description']) && $transaction['description'] !== null) {
                 $transaction['description'] = mb_substr(strip_tags($transaction['description']), 0, 500);
             }
@@ -105,15 +92,8 @@ class TransactionRepository
             ->first();
     }
 
-    /**
-     * Get wallet transaction summary using database aggregation (optimized).
-     *
-     * @param int $walletId
-     * @return array
-     */
     public function getWalletTransactionSummary(int $walletId): array
     {
-        // Use database aggregation instead of fetching all records
         $summary = Transaction::where('wallet_id', $walletId)
             ->where('status', 'completed')
             ->selectRaw('
@@ -128,12 +108,6 @@ class TransactionRepository
         ];
     }
 
-    /**
-     * Get transactions with relationships in bulk.
-     *
-     * @param array $walletIds
-     * @return Collection
-     */
     public function findByWalletIds(array $walletIds): Collection
     {
         return Transaction::whereIn('wallet_id', $walletIds)

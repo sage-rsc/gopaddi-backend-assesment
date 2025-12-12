@@ -47,12 +47,6 @@ abstract class Action
         }
     }
 
-    /**
-     * Sanitize arguments for logging (remove sensitive data).
-     *
-     * @param array $arguments
-     * @return array
-     */
     protected function sanitizeArguments(array $arguments): array
     {
         return $arguments;
