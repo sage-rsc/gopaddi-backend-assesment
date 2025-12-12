@@ -44,7 +44,7 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/gopaddi-backend-assesment.git
+   git clone https://github.com/sage-rsc/gopaddi-backend-assesment.git
    cd gopaddi-backend-assesment
    ```
 
@@ -565,17 +565,50 @@ If any step fails, the entire transaction is rolled back, ensuring data consiste
 
 ## Testing with Postman
 
-1. Import the `postman_collection.json` file into Postman
-2. The collection is pre-configured with the base URL `http://localhost:8000`
-3. All requests include the required `token: VG@123` header
-4. Test the endpoints in the following order:
-   - Create wallets for users (POST /api/wallets)
-   - Fund wallets (POST /api/wallets/{id}/fund)
-   - Initiate transfers (POST /api/transfers)
-   - View wallet balances and transaction summaries (GET /api/wallets/{id})
-   - View transfer details (GET /api/transfers/{id})
-   - View wallet transfers (GET /api/wallets/{walletId}/transfers)
-   - Verify ledger integrity (GET /api/ledger/wallets/{walletId}/verify)
+### Setup
+
+1. **Import the collection**: Import `postman_collection.json` into Postman
+2. **Configure variables**: Click on the collection → **Variables** tab
+3. **Default variables** (ready to use):
+   - `base_url`: `http://localhost:8000`
+   - `api_token`: `VG@123`
+   - `user_id`: `4` (for wallet creation - avoids conflict with seeded users)
+   - `wallet_id`: `1` (for viewing/funding existing wallets)
+   - `sender_wallet_id`: `1`
+   - `receiver_wallet_id`: `2`
+   - `transfer_id`: `1`
+
+### Testing Workflow
+
+All requests automatically use the collection variables. Update them in the **Variables** tab as needed.
+
+1. **Create Wallet** (POST /api/wallets)
+   - Uses `{{user_id}}` variable (default: 4)
+   - Returns 202 Accepted (queued)
+
+2. **View Wallet Balance** (GET /api/wallets/{{wallet_id}})
+   - Uses `{{wallet_id}}` variable (default: 1)
+   - View seeded wallet from database
+
+3. **Fund Wallet** (POST /api/wallets/{{wallet_id}}/fund)
+   - Uses `{{wallet_id}}` variable
+
+4. **Withdraw from Wallet** (POST /api/wallets/{{wallet_id}}/withdraw)
+   - Uses `{{wallet_id}}` variable
+
+5. **Initiate Transfer** (POST /api/transfers)
+   - Uses `{{sender_wallet_id}}` and `{{receiver_wallet_id}}` variables
+
+6. **View Transfer Details** (GET /api/transfers/{{transfer_id}})
+   - Uses `{{transfer_id}}` variable
+
+7. **View Wallet Transfers** (GET /api/wallets/{{wallet_id}}/transfers)
+   - Uses `{{wallet_id}}` variable
+
+8. **Verify Ledger Integrity** (GET /api/ledger/wallets/{{wallet_id}}/verify)
+   - Uses `{{wallet_id}}` variable
+
+**Note**: All requests automatically include the `token: VG@123` header via collection-level authentication. No need to add headers manually.
 
 ## Error Handling
 
