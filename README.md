@@ -10,7 +10,7 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
 - **Security**: Token-based authentication middleware, balance validation, and concurrent write prevention
 - **Transaction Integrity**: Database transactions with row locking to prevent race conditions
 - **Enterprise Architecture**: Laravel Actions pattern for clean, maintainable code
-- **Async Processing**: Queue-based wallet creation for instant API responses
+- **Queue System**: Reserved for future virtual account creation with payment providers
 - **Production Ready**: Comprehensive error handling, logging, and exception management
 - **FinTech-Grade Security**: 
   - Rate limiting on all endpoints
@@ -100,59 +100,17 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
    ```
 
    This will create:
-   - 3 test users
-   - Each user with a wallet pre-loaded with random balances
-   - Some transactions automatically generated
+   - 3 test users (user 1, 2, and 3)
+   - Wallets for users 2 and 3 with balances calculated from transactions
+   - User 1 has no wallet (for testing wallet creation)
+   - Transactions automatically generated for users 2 and 3
 
-7. **Configure Queue (Required for async wallet creation)**
-   
-   Edit `.env` file:
-   ```env
-   QUEUE_CONNECTION=database
-   ```
-   
-   For production, use Redis:
-   ```env
-   QUEUE_CONNECTION=redis
-   REDIS_HOST=127.0.0.1
-   REDIS_PASSWORD=null
-   REDIS_PORT=6379
-   ```
-
-8. **Start the queue worker** (Required for async processing)
-   ```bash
-   php artisan queue:work
-   ```
-   
-   For production, use a process manager like Supervisor:
-   ```ini
-   [program:laravel-worker]
-   process_name=%(program_name)s_%(process_num)02d
-   command=php /var/www/gopaddi-backend-assesment/artisan queue:work --sleep=3 --tries=3 --max-time=3600
-   autostart=true
-   autorestart=true
-   stopasgroup=true
-   killasgroup=true
-   user=www-data
-   numprocs=2
-   redirect_stderr=true
-   stdout_logfile=/var/www/gopaddi-backend-assesment/storage/logs/worker.log
-   stopwaitsecs=3600
-   ```
-   
-   Note: Update the paths to match your actual deployment directory.
-
-9. **Start the development server**
+7. **Start the development server**
    ```bash
    php artisan serve
    ```
 
    The API will be available at `http://localhost:8000`
-
-   **Note**: For wallet creation (async), you also need to run the queue worker in a separate terminal:
-   ```bash
-   php artisan queue:work
-   ```
 
 ## API Endpoints
 
@@ -522,11 +480,10 @@ Single-responsibility action classes for clean, testable code:
 - `TransferService`: Orchestrates transfer operations using Actions
 
 #### Queue System
-- `CreateWalletJob`: Async job for wallet creation
+- `CreateWalletJob`: Reserved for future virtual account creation with payment providers
+  - Placeholder for integration with external payment gateways
   - Automatic retry on failure (3 attempts)
   - Exponential backoff (60 seconds)
-  - Comprehensive logging
-  - Failure handling
 
 ### Security Features
 
@@ -555,7 +512,7 @@ Single-responsibility action classes for clean, testable code:
 - **Row Locking**: Uses `lockForUpdate()` to prevent race conditions
 - **Database Transactions**: All critical operations wrapped in DB transactions
 - **Balance Validation**: Prevents negative balances
-- **Amount Validation**: Validates decimal amounts (>= 1, max 2 decimal places)
+- **Amount Validation**: Validates decimal amounts (minimum 1.00, maximum 999999999999.99, max 2 decimal places)
 - **SQL Injection Prevention**: Parameterized queries only
 
 ## Transaction Integrity
@@ -578,8 +535,8 @@ If any step fails, the entire transaction is rolled back, ensuring data consiste
 3. **Default variables** (ready to use):
    - `base_url`: `http://localhost:8000`
    - `api_token`: `VG@123`
-   - `user_id`: `4` (for wallet creation - avoids conflict with seeded users)
-   - `wallet_id`: `1` (for viewing/funding existing wallets)
+   - `user_id`: `1` (for wallet creation - user 1 has no wallet initially)
+   - `wallet_id`: `2` (for viewing/funding existing wallets - refers to user 2's wallet)
    - `sender_wallet_id`: `1`
    - `receiver_wallet_id`: `2`
    - `transfer_id`: `1`
@@ -589,8 +546,8 @@ If any step fails, the entire transaction is rolled back, ensuring data consiste
 All requests automatically use the collection variables. Update them in the **Variables** tab as needed.
 
 1. **Create Wallet** (POST /api/wallets)
-   - Uses `{{user_id}}` variable (default: 4)
-   - Returns 202 Accepted (queued)
+   - Uses `{{user_id}}` variable (default: 1)
+   - Returns 201 Created with wallet object
 
 2. **View Wallet Balance** (GET /api/wallets/{{wallet_id}})
    - Uses `{{wallet_id}}` variable (default: 1)
@@ -630,14 +587,16 @@ The API returns consistent JSON error responses:
 Common HTTP status codes:
 - `200`: Success
 - `201`: Created
-- `400`: Bad Request (validation errors, insufficient balance, etc.)
+- `400`: Bad Request (business logic errors, insufficient balance, etc.)
 - `401`: Unauthorized (invalid/missing token)
+- `422`: Unprocessable Entity (validation errors)
 - `404`: Not Found
+- `429`: Too Many Requests (rate limit exceeded)
 - `500`: Internal Server Error
 
 ## Validation Rules
 
-- **Amount**: Required, numeric, minimum 0.01, maximum 999999999999.99, decimal format (max 2 decimal places)
+- **Amount**: Required, numeric, minimum 1.00, maximum 999999999999.99, decimal format (max 2 decimal places)
 - **User ID**: Required, must exist in users table, unique (one wallet per user)
 - **Wallet ID**: Required, must exist in wallets table
 - **Transfer**: Sender and receiver wallets must be different
@@ -655,9 +614,11 @@ php artisan migrate
 php artisan db:seed
 ```
 
-### Queue Management
+### Queue Management (Optional - For Future Features)
 
-**Start Queue Worker (Development)**
+The queue system is set up but not currently required for wallet operations. It's reserved for future virtual account creation with payment providers.
+
+**Start Queue Worker (If Needed)**
 ```bash
 php artisan queue:work
 ```
