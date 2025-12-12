@@ -31,7 +31,7 @@ class CreateWalletJob implements ShouldQueue
         public int $userId
     ) {}
 
-    public function handle(CreateWalletAction $action): void
+    public function handle(): void
     {
         // TODO: Implement virtual account creation with payment provider
         // This job is reserved for future implementation where wallet creation
