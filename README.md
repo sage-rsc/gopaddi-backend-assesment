@@ -142,29 +142,17 @@ A Laravel-based wallet and payment system with transaction integrity, double-ent
    
    Note: Update the paths to match your actual deployment directory.
 
-9. **Start the development server and queue worker**
-
-   **Option 1: Using Composer script (Recommended)**
+9. **Start the development server**
    ```bash
-   composer start
-   ```
-   This runs both the server and queue worker together.
-
-   **Option 2: Using the start script**
-   ```bash
-   ./start.sh
-   ```
-
-   **Option 3: Run separately (if needed)**
-   ```bash
-   # Terminal 1: Start server
    php artisan serve
-
-   # Terminal 2: Start queue worker
-   php artisan queue:work
    ```
 
    The API will be available at `http://localhost:8000`
+
+   **Note**: For wallet creation (async), you also need to run the queue worker in a separate terminal:
+   ```bash
+   php artisan queue:work
+   ```
 
 ## API Endpoints
 
