@@ -23,7 +23,7 @@ class WalletController extends BaseController
             return $this->successResponse([
                 'wallet_id' => $wallet->id,
                 'user_id' => $wallet->user_id,
-                'balance' => (float) $wallet->balance,
+                'balance' => round((float) $wallet->balance, 2),
                 'created_at' => $wallet->created_at,
             ], 'Wallet created successfully', 201);
         } catch (\Exception $e) {
@@ -65,7 +65,7 @@ class WalletController extends BaseController
             return $this->successResponse([
                 'transaction_id' => $transaction->id,
                 'reference' => $transaction->reference,
-                'amount' => (float) $transaction->amount,
+                'amount' => round((float) $transaction->amount, 2),
                 'type' => $transaction->type,
                 'status' => $transaction->status,
             ], 'Wallet funded successfully');
@@ -88,7 +88,7 @@ class WalletController extends BaseController
             return $this->successResponse([
                 'transaction_id' => $transaction->id,
                 'reference' => $transaction->reference,
-                'amount' => (float) $transaction->amount,
+                'amount' => round((float) $transaction->amount, 2),
                 'type' => $transaction->type,
                 'status' => $transaction->status,
             ], 'Withdrawal successful');

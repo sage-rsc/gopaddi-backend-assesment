@@ -32,7 +32,7 @@ class GetWalletTransfersAction extends Action
                 'id' => $transfer->id,
                 'reference' => $transfer->reference,
                 'type' => $transfer->sender_wallet_id === $walletId ? 'outgoing' : 'incoming',
-                'amount' => (float) $transfer->amount,
+                'amount' => round((float) $transfer->amount, 2),
                 'sender' => $transfer->senderWallet->user->name,
                 'receiver' => $transfer->receiverWallet->user->name,
                 'description' => $transfer->description,

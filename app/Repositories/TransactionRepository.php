@@ -103,8 +103,8 @@ class TransactionRepository
             ->first();
 
         return [
-            'credit_total' => (float) ($summary->credit_total ?? 0),
-            'debit_total' => (float) ($summary->debit_total ?? 0),
+            'credit_total' => round((float) ($summary->credit_total ?? 0), 2),
+            'debit_total' => round((float) ($summary->debit_total ?? 0), 2),
         ];
     }
 

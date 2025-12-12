@@ -28,7 +28,7 @@ class TransferController extends BaseController
                 'reference' => $transfer->reference,
                 'sender_wallet_id' => $transfer->sender_wallet_id,
                 'receiver_wallet_id' => $transfer->receiver_wallet_id,
-                'amount' => (float) $transfer->amount,
+                'amount' => round((float) $transfer->amount, 2),
                 'status' => $transfer->status,
                 'created_at' => $transfer->created_at,
             ], 'Transfer initiated successfully', 201);
@@ -61,7 +61,7 @@ class TransferController extends BaseController
                     'user_id' => $transfer->receiverWallet->user_id,
                     'user_name' => $transfer->receiverWallet->user->name,
                 ],
-                'amount' => (float) $transfer->amount,
+                'amount' => round((float) $transfer->amount, 2),
                 'description' => $transfer->description,
                 'status' => $transfer->status,
                 'created_at' => $transfer->created_at,

@@ -37,7 +37,7 @@ class GetWalletDetailsAction extends Action
 
         return [
             'wallet' => $wallet,
-            'balance' => (float) $wallet->balance,
+            'balance' => round((float) $wallet->balance, 2),
             'transaction_summary' => $summary,
         ];
     }
